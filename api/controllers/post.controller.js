@@ -51,14 +51,14 @@ export const getPosts = async (req, res, next) => {
     const totalPosts = await Post.countDocuments();
 
     const lastMonthPosts = await Post.countDocuments({
-        createdAt: { $gte: getOneMonthAgoDate() },
-    })
+      createdAt: { $gte: getOneMonthAgoDate() },
+    });
 
     res.status(200).json({
-        posts,
-        totalPosts,
-        lastMonthPosts
-    })
+      posts,
+      totalPosts,
+      lastMonthPosts,
+    });
   } catch (error) {
     next(error);
   }
@@ -66,37 +66,65 @@ export const getPosts = async (req, res, next) => {
 
 export const deletePost = async (req, res, next) => {
   if (!req.user.isAdmin || req.user.id !== req.params.userId) {
-    return next(errorHandler(403, 'You are not allowed to delete this post'))
+    return next(errorHandler(403, "You are not allowed to delete this post"));
   }
   try {
     await Post.findByIdAndDelete(req.params.postId);
-    res.status(200).json('The post has been deleted');
+    res.status(200).json("The post has been deleted");
   } catch (error) {
     next(error);
   }
-}
+};
 
 function getOneMonthAgoDate() {
-    const today = new Date();
-    const currentMonth = today.getMonth(); 
-  
-    let monthAgoMonth = currentMonth - 1;
-    let monthAgoYear = today.getFullYear();
-  
-    if (monthAgoMonth < 0) {
-      monthAgoMonth = 11; 
-      monthAgoYear--;
-    }
-  
-    const monthAgoDate = new Date(monthAgoYear, monthAgoMonth, 1);
-  
-    if (today.getDate() === new Date(today.getFullYear(), today.getMonth(), 0).getDate()) {
-      monthAgoDate.setDate(Math.min(today.getDate(), new Date(monthAgoYear, monthAgoMonth, 0).getDate()));
-    }
-  
-    return monthAgoDate;
+  const today = new Date();
+  const currentMonth = today.getMonth();
+
+  let monthAgoMonth = currentMonth - 1;
+  let monthAgoYear = today.getFullYear();
+
+  if (monthAgoMonth < 0) {
+    monthAgoMonth = 11;
+    monthAgoYear--;
   }
 
+  const monthAgoDate = new Date(monthAgoYear, monthAgoMonth, 1);
 
-  
-  
+  if (
+    today.getDate() ===
+    new Date(today.getFullYear(), today.getMonth(), 0).getDate()
+  ) {
+    monthAgoDate.setDate(
+      Math.min(
+        today.getDate(),
+        new Date(monthAgoYear, monthAgoMonth, 0).getDate()
+      )
+    );
+  }
+
+  return monthAgoDate;
+}
+
+export const updatePost = async (req, res, next) => {
+  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    return next(errorHandler(403, "You are not allowed to update this post"));
+  }
+
+  try {
+    const updatePost = await Post.findByIdAndUpdate(
+      req.params.postId,
+      {
+        $set: {
+          title: req.body.title,
+          content: req.body.content,
+          category: req.body.category,
+          image: req.body.image,
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json(updatePost);
+  } catch (error) {
+    next(error);
+  }
+};
