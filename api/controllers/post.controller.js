@@ -1,6 +1,6 @@
 import Post from "../models/post.model.js";
 import { errorHandler } from "../utils/error.js";
-
+import { getOneMonthAgoDate } from "../utils/oneMonthAgoDate.js";
 export const create = async (req, res, next) => {
   if (!req.user.isAdmin) {
     return next(errorHandler(403, "You are not allowed to create a post"));
@@ -76,34 +76,7 @@ export const deletePost = async (req, res, next) => {
   }
 };
 
-function getOneMonthAgoDate() {
-  const today = new Date();
-  const currentMonth = today.getMonth();
 
-  let monthAgoMonth = currentMonth - 1;
-  let monthAgoYear = today.getFullYear();
-
-  if (monthAgoMonth < 0) {
-    monthAgoMonth = 11;
-    monthAgoYear--;
-  }
-
-  const monthAgoDate = new Date(monthAgoYear, monthAgoMonth, 1);
-
-  if (
-    today.getDate() ===
-    new Date(today.getFullYear(), today.getMonth(), 0).getDate()
-  ) {
-    monthAgoDate.setDate(
-      Math.min(
-        today.getDate(),
-        new Date(monthAgoYear, monthAgoMonth, 0).getDate()
-      )
-    );
-  }
-
-  return monthAgoDate;
-}
 
 export const updatePost = async (req, res, next) => {
   if (!req.user.isAdmin || req.user.id !== req.params.userId) {
