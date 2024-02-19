@@ -30,13 +30,6 @@ export default function FooterComp() {
               <Footer.Title title="about" />
               <Footer.LinkGroup col>
                 <Footer.Link
-                  href="https://gemini.google.com/app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  100 JS Projects
-                </Footer.Link>
-                <Footer.Link
                   href="/about"
                   target="_blank"
                   rel="noopener noreferrer"
