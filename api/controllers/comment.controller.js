@@ -1,5 +1,6 @@
 import Comment from "../models/comment.model.js";
 import { errorHandler } from "../utils/error.js";
+import { getOneMonthAgoDate } from "../utils/oneMonthAgoDate.js";
 
 export const createComment = async (req, res, next) => {
   try {
@@ -95,4 +96,24 @@ export const deleteComment = async (req, res, next) => {
     next(error)
   }
   
+}
+
+export const getComments = async (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return next(errorHandler(403, 'You are not allowed to get all comments'))
+  }
+  try {
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const sortDirection = req.query.sort === 'desc' ? -1 : 1;
+    const comments = await Comment.find()
+      .sort({createdAt: sortDirection})
+      .skip(startIndex)
+      .limit(limit);
+      const totalComments = await Comment.countDocuments();
+      const lastMonthsComments = await Comment.countDocuments({createdAt: {$gte : getOneMonthAgoDate()}})
+      res.status(200).json({comments, totalComments, lastMonthsComments});
+  } catch (error) {
+    next(error)
+  }
 }
